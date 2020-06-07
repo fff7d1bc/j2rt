@@ -25,7 +25,9 @@ The help
     -t TEMPLATE_FROM, --template-from TEMPLATE_FROM
                           Path to template file to use
     -v VARIABLES_FROM [VARIABLES_FROM ...], --variables-from VARIABLES_FROM [VARIABLES_FROM ...]
-                          The path(s) for JSON files from which variables will be taken from, if variable in file is already defined, it will be overwritten.
+                          The path(s) for JSON files from which variables will be taken
+                          from, if variable in file is already defined, it will be
+                          overwritten.
     -o OUTPUT, --output OUTPUT
                           Output file, if not set, result is printed to stdout.
 
@@ -35,14 +37,23 @@ Examples
 Generate nginx.conf
 ::
 
-  j2rt -t s3://somebucket/nginx.conf.j2 -v /etc/nginx.conf.base.json s3://somebucket/nginx.conf.webserver.json >/etc/nginx.conf
+  j2rt \
+    -t s3://somebucket/nginx.conf.j2 \
+    -v /etc/nginx.conf.base.json s3://somebucket/nginx.conf.webserver.json \
+    >/etc/nginx.conf
 
 (Re)generate configuration for all the nginx's vhosts
 ::
 
-  true >/etc/nginx/conf.d/vhosts.conf && for vhost in vhosts/*.json; do j2rt -t nginx.vhost.conf.j2 -v "$vhost" >>/etc/nginx/conf.d/vhosts.conf && nginx -s reload
+  true >/etc/nginx/conf.d/vhosts.conf && \
+  for vhost in vhosts/*.json; do 
+    j2rt -t nginx.vhost.conf.j2 -v "$vhost" >>/etc/nginx/conf.d/vhosts.conf
+  done && nginx -s reload
 
 Generate .env with production configuration and secrets, taking secrets from (encrypted) S3 bucket.
 ::
 
-  j2rt -t .env.j2 -v .env.base.json .env.prod.json s3://somebucket/.env.prod.secrets.json -o .env
+  j2rt \
+    -t .env.j2 \
+    -v .env.base.json .env.prod.json s3://somebucket/.env.prod.secrets.json \
+    -o .env
