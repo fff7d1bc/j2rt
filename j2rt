@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from src import j2rt
+
+j2rt.main()
