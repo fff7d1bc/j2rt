@@ -6,6 +6,7 @@ from pathlib import Path
 import jinja2
 
 from .custom_filters import custom_filters
+from .version import version
 
 
 def process_args():
@@ -24,6 +25,10 @@ def process_args():
     parser.add_argument(
         '-o', '--output', action='store', required=False,
         help="Output file, if not set, result is printed to stdout."
+    )
+
+    parser.add_argument(
+        '--version', action='version', help='Show version and exit', version=version
     )
 
     args, extra_args = parser.parse_known_args()
