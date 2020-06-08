@@ -5,6 +5,8 @@ from pathlib import Path
 
 import jinja2
 
+from .custom_filters import custom_filters
+
 
 def process_args():
     parser = argparse.ArgumentParser()
@@ -77,11 +79,15 @@ def render(args):
 
     template, variables = collect_input(args.template_from, variables_from)
 
-    result = jinja2.Environment(
+    env = jinja2.Environment(
         loader=jinja2.BaseLoader(),
         undefined=jinja2.StrictUndefined,
-        keep_trailing_newline=True
-    ).from_string(template).render(**variables)
+        keep_trailing_newline=True,
+    )
+
+    env.filters.update(**custom_filters)
+
+    result = env.from_string(template).render(**variables)
 
     if args.output:
         Path(args.output).write_text(result)

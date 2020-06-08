@@ -10,6 +10,14 @@ Python dependencies
 - jinja2
 - boto3 (only if s3 is used)
 
+Custom filters
+--------------
+
+Filters that are supported but are not part of official Jinja2 specification
+
+- b64decode - decode base64 encoded string into it's original form.
+- b64encode - encode string into base64.
+
 Usage
 -----
 
