@@ -73,7 +73,7 @@ Generate nginx.conf
 
   j2rt \
     -t s3://somebucket/nginx.conf.j2 \
-    -v /etc/nginx.conf.base.json s3://somebucket/nginx.conf.webserver.json \
+    -v /etc/nginx.conf.base.json -v s3://somebucket/nginx.conf.webserver.json \
     >/etc/nginx.conf
 
 (Re)generate configuration for all the nginx's vhosts
@@ -89,7 +89,7 @@ Generate .env with production configuration and secrets, taking secrets from (en
 
   j2rt \
     -t .env.j2 \
-    -v .env.base.json .env.prod.json s3://somebucket/.env.prod.secrets.json \
+    -v .env.base.json -v .env.prod.json -v s3://somebucket/.env.prod.secrets.json \
     -o .env
 
 Generate OpenVPN client config file, taking CA.crt from S3 bucket, while client certificate and other keys taken from local file system::
@@ -97,10 +97,9 @@ Generate OpenVPN client config file, taking CA.crt from S3 bucket, while client 
   j2rt \
     --template-from /etc/openvpn/client.ovpn.j2 \
     --variables-from /etc/openvpn/base_configuration_subnets_routing_tables_etc.json \
-    --variable \
-      server_name=TEST_SERVER \
-      CA_CRT=@s3://somebucket/ca.crt \
-      client_crt=@/path/to/pki/certs/client1.crt \
-      client_key=@/path/to/pki/keys/client1.key \
-      ta_key=@/etc/openvpn/ta.key \
+    --variable server_name=TEST_SERVER \
+    --variable CA_CRT=@s3://somebucket/ca.crt \
+    --variable client_crt=@/path/to/pki/certs/client1.crt \
+    --variable client_key=@/path/to/pki/keys/client1.key \
+    --variable ta_key=@/etc/openvpn/ta.key \
     -o /root/client1.ovpn

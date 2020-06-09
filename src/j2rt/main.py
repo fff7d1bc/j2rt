@@ -18,12 +18,12 @@ def process_args():
     )
 
     parser.add_argument(
-        '-v', '--variables-from', action='append', nargs='+',
+        '-v', '--variables-from', action='append', nargs=1,
         help="The path(s) for JSON files from which variables will be taken from, if variable in file is already defined, it will be overwritten."
     )
 
     parser.add_argument(
-        '-V', '--variable', action='append', nargs='+',
+        '-V', '--variable', action='append', nargs=1,
         help="Set variable from command line, in the format name=value, prefix value with @ to read file into variable, one can escape @ by writting it as @@foo for @foo value. Variables specified at command line have highest priority and will overrride the same variable set in any of --variables-from."
     )
 
