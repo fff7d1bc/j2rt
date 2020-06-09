@@ -10,7 +10,7 @@ from .version import version
 
 
 def process_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog='j2rt')
 
     parser.add_argument(
         '-t', '--template-from', action='store', type=str, required=True,
