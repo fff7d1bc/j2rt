@@ -18,8 +18,13 @@ def process_args():
     )
 
     parser.add_argument(
-        '-v', '--variables-from', action='append', nargs='+', required=True,
+        '-v', '--variables-from', action='append', nargs='+',
         help="The path(s) for JSON files from which variables will be taken from, if variable in file is already defined, it will be overwritten."
+    )
+
+    parser.add_argument(
+        '-V', '--variable', action='append', nargs='+',
+        help="Set variable from command line, in the format name=value, prefix value with @ to read file into variable, one can escape @ by writting it as @@foo for @foo value. Variables specified at command line have highest priority and will overrride the same variable set in any of --variables-from."
     )
 
     parser.add_argument(
@@ -41,6 +46,9 @@ def process_args():
         parser.print_help(sys.stderr)
         sys.exit(1)
 
+    if not (args.variables_from or args.variable):
+        parser.error('At least one of --variables-from or --variable is required')
+
     return args, extra_args
 
 
@@ -55,11 +63,15 @@ def read_file(path, providers):
         return Path(path).read_text()
 
 
-def collect_input(template_from, variables_from):
+def collect_input(template_from, variables_from, single_variables):
     variables = {}
 
     providers = {}
-    if template_from.startswith('s3://') or any(item.startswith('s3://') for item in variables_from):
+    if (
+        template_from.startswith('s3://') or
+        any(item.startswith('s3://') for item in variables_from) or
+        any('=@s3://' in item for item in single_variables)
+    ):
         # Late initialize boto3's s3 client, only if s3 is in use
         # to make sure script works without boto3 if no s3 is required.
         import boto3
@@ -74,15 +86,38 @@ def collect_input(template_from, variables_from):
             )
         )
 
+    for variable in single_variables:
+        if '=' not in variable:
+            raise ValueError("Wrong format '{}'".format(variable))
+
+        name, value = variable.split("=", 1)
+
+        if value[:1] == '@':
+            if value[1:2] == '@':
+                variables.update({name: value[1:]})
+            else:
+                variables.update({name: read_file(value[1:], providers)})
+        else:
+            variables.update({name: value})
+
     return template, variables
 
 
 def render(args):
     # Python before 3.8 did not had action='extend' in argsparse, so to make it just work
     # we will flatten the list of lists from action='append'.
-    variables_from = [item for sublist in args.variables_from for item in sublist]
 
-    template, variables = collect_input(args.template_from, variables_from)
+    if args.variables_from:
+        variables_from = [item for sublist in args.variables_from for item in sublist]
+    else:
+        variables_from = []
+
+    if args.variable:
+        single_variables = [item for sublist in args.variable for item in sublist]
+    else:
+        single_variables = []
+
+    template, variables = collect_input(args.template_from, variables_from, single_variables)
 
     env = jinja2.Environment(
         loader=jinja2.BaseLoader(),

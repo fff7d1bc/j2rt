@@ -38,18 +38,32 @@ The template and variable file(s) can be either local, or remote s3, if prefixed
 
 ::
 
-  usage: j2rt [-h] -t TEMPLATE_FROM -v VARIABLES_FROM [VARIABLES_FROM ...] [-o OUTPUT]
+  usage: j2rt [-h] -t TEMPLATE_FROM
+              [-v VARIABLES_FROM [VARIABLES_FROM ...]]
+              [-V VARIABLE [VARIABLE ...]] [-o OUTPUT] [--version]
 
   optional arguments:
     -h, --help            show this help message and exit
     -t TEMPLATE_FROM, --template-from TEMPLATE_FROM
                           Path to template file to use
     -v VARIABLES_FROM [VARIABLES_FROM ...], --variables-from VARIABLES_FROM [VARIABLES_FROM ...]
-                          The path(s) for JSON files from which variables will be taken
-                          from, if variable in file is already defined, it will be
+                          The path(s) for JSON files from which
+                          variables will be taken from, if variable in
+                          file is already defined, it will be
                           overwritten.
+    -V VARIABLE [VARIABLE ...], --variable VARIABLE [VARIABLE ...]
+                          Set variable from command line, in the format
+                          name=value, prefix value with @ to read file
+                          into variable, one can escape @ by writting it
+                          as @@foo for @foo value. Variables specified
+                          at command line have highest priority and will
+                          overrride the same variable set in any of
+                          --variables-from.
     -o OUTPUT, --output OUTPUT
-                          Output file, if not set, result is printed to stdout.
+                          Output file, if not set, result is printed to
+                          stdout.
+    --version             Show version and exit
+
 
 Examples
 --------
@@ -77,3 +91,16 @@ Generate .env with production configuration and secrets, taking secrets from (en
     -t .env.j2 \
     -v .env.base.json .env.prod.json s3://somebucket/.env.prod.secrets.json \
     -o .env
+
+Generate OpenVPN client config file, taking CA.crt from S3 bucket, while client certificate and other keys taken from local file system::
+
+  j2rt \
+    --template-from /etc/openvpn/client.ovpn.j2 \
+    --variables-from /etc/openvpn/base_configuration_subnets_routing_tables_etc.json \
+    --variable \
+      server_name=TEST_SERVER \
+      CA_CRT=@s3://somebucket/ca.crt \
+      client_crt=@/path/to/pki/certs/client1.crt \
+      client_key=@/path/to/pki/keys/client1.key \
+      ta_key=@/etc/openvpn/ta.key \
+    -o /root/client1.ovpn
