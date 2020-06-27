@@ -9,6 +9,7 @@ Python dependencies
 -------------------
 - jinja2
 - boto3 (only if s3 is used)
+- python-gnupg (only if gpg_decrypt filter is used)
 
 Custom filters
 --------------
@@ -17,6 +18,7 @@ Filters that are supported but are not part of official Jinja2 specification
 
 - b64decode - decode base64 encoded string into it's original form.
 - b64encode - encode string into base64.
+- gpg_decrypt - decrypt string with GnuPG
 
 Installation
 ------------
@@ -38,32 +40,27 @@ The template and variable file(s) can be either local, or remote s3, if prefixed
 
 ::
 
-  usage: j2rt [-h] -t TEMPLATE_FROM
-              [-v VARIABLES_FROM [VARIABLES_FROM ...]]
-              [-V VARIABLE [VARIABLE ...]] [-o OUTPUT] [--version]
+  usage: j2rt [-h] -t TEMPLATE_FROM [-v VARIABLES_FROM] [-V VARIABLE]
+              [-o OUTPUT] [--version]
 
   optional arguments:
     -h, --help            show this help message and exit
     -t TEMPLATE_FROM, --template-from TEMPLATE_FROM
                           Path to template file to use
-    -v VARIABLES_FROM [VARIABLES_FROM ...], --variables-from VARIABLES_FROM [VARIABLES_FROM ...]
-                          The path(s) for JSON files from which
-                          variables will be taken from, if variable in
-                          file is already defined, it will be
-                          overwritten.
-    -V VARIABLE [VARIABLE ...], --variable VARIABLE [VARIABLE ...]
+    -v VARIABLES_FROM, --variables-from VARIABLES_FROM
+                          The path(s) for JSON files from which variables will
+                          be taken from, if variable in file is already defined,
+                          it will be overwritten.
+    -V VARIABLE, --variable VARIABLE
                           Set variable from command line, in the format
-                          name=value, prefix value with @ to read file
-                          into variable, one can escape @ by writting it
-                          as @@foo for @foo value. Variables specified
-                          at command line have highest priority and will
-                          overrride the same variable set in any of
-                          --variables-from.
+                          name=value, prefix value with @ to read file into
+                          variable, one can escape @ by writting it as @@foo for
+                          @foo value. Variables specified at command line have
+                          highest priority and will overrride the same variable
+                          set in any of --variables-from.
     -o OUTPUT, --output OUTPUT
-                          Output file, if not set, result is printed to
-                          stdout.
+                          Output file, if not set, result is printed to stdout.
     --version             Show version and exit
-
 
 Examples
 --------
