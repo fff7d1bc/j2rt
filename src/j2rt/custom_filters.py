@@ -16,7 +16,7 @@ def b64encode(string):
 
 
 def gpg_decrypt(string):
-    return gpg.decrypt(string).data.decode('utf-8')
+    return gpg.decrypt(str(string).encode('utf-8')).data.decode('utf-8')
 
 
 custom_filters = {
