@@ -2,7 +2,6 @@ import base64
 
 try:
     import gnupg
-    gpg = gnupg.GPG()
 except ImportError:
     pass
 
@@ -16,6 +15,7 @@ def b64encode(string):
 
 
 def gpg_decrypt(string):
+    gpg = gnupg.GPG()
     return gpg.decrypt(str(string).encode('utf-8')).data.decode('utf-8')
 
 
