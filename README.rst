@@ -1,15 +1,15 @@
 j2rt - Jinja2 rendering tool
 ============================
 
-j2rt is a tool meant to simplify Jinja2 usage for CLI, be that with shell scripts, continuous integration pipelines or anything else, where ``m4`` is not a good fit, with all the whistles and bells that Jinja2 offers, if statements, for loops, filters and many more, see Jinja2's `syntax <https://jinja.palletsprojects.com/en/2.11.x/templates/>`_ for list of features. The tool can take template and variable files from local filesystem as well as remote S3. The S3 integration makes it easy to create a secure secrets store for your configuration files, since S3 can be encrypted (KMS or regular server side AES), it's viable to place secrets.json in S3 and then load it during deployment process for the configuration files to be generated, as one of use cases.
+j2rt is a tool meant to simplify Jinja2 usage for CLI, be that with shell scripts, continuous integration pipelines or anything else, where ``m4`` is not a good fit, with all the whistles and bells that Jinja2 offers, if statements, for loops, filters and many more, see Jinja2's `syntax <https://jinja.palletsprojects.com/en/2.11.x/templates/>`_ for list of features. The tool can take template and variable files from local filesystem as well as remote like S3 and SSM. The S3 integration makes it easy to create a secure secrets store for your configuration files, since S3 can be encrypted (KMS or regular server side AES), it's viable to place secrets.json in S3 and then load it during deployment process for the configuration files to be generated, as one of use cases.
 
 Multiple variable files can be used, in a way that one can, for example, specify one base variables file, and then append some keys, or override others, if needed.
 
 Python dependencies
 -------------------
 - jinja2
-- boto3 (only if s3 is used)
-- python-gnupg (only if gpg_decrypt filter is used)
+- boto3 (optional, provides support for s3:// and ssm://)
+- python-gnupg (optional, used with gpg_decrypt jinja2 filter)
 
 Custom filters
 --------------
@@ -71,6 +71,7 @@ Generate nginx.conf
   j2rt \
     -t s3://somebucket/nginx.conf.j2 \
     -v /etc/nginx.conf.base.json -v s3://somebucket/nginx.conf.webserver.json \
+    -V base_domain=@ssm:///config/basedomain
     >/etc/nginx.conf
 
 (Re)generate configuration for all the nginx's vhosts
